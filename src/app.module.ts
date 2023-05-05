@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
+import { BookModule } from './modules/book/book.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { SharedModule } from './shared/shared.module';
     }),
     SharedModule,
     AuthModule,
-    UserModule
+    UserModule,
+    BookModule
   ],
   controllers: [AppController],
   providers: [AppService],

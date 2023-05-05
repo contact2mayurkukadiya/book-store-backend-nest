@@ -1,11 +1,10 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import * as bcrypt from 'bcrypt';
 import { UserEntity } from "./user.entity";
 import { GenreEntity } from "./genre.entity";
 import { APP_CONST } from "src/constants";
 
 
-@Entity('account')
+@Entity('book')
 export class BookEntity {
 
     @PrimaryGeneratedColumn('uuid')
@@ -24,10 +23,10 @@ export class BookEntity {
     @Column({ collation: "default", nullable: false })
     publisher: string;
 
-    @Column({ nullable: true })
-    genre_id: GenreEntity;
+    @Column()
+    genre_id: string;
 
-    @OneToMany(() => GenreEntity, (genre) => genre.id)
+    @OneToMany(() => GenreEntity, (genre) => genre.id, { nullable: true })
     @JoinColumn({ name: "genre_id" })
     genre: GenreEntity;
 
@@ -35,10 +34,10 @@ export class BookEntity {
     language: string;
 
     @Column({ type: "int", default: APP_CONST.PDF, enum: [APP_CONST.PDF, APP_CONST.AUDIO_BOOK], nullable: false })
-    format: string;
+    format: number;
 
     @Column({ type: "int", nullable: false })
-    pages: Number
+    pages: number
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at?: Date;
