@@ -7,7 +7,7 @@ import { JwtAuthGuard } from 'src/shared/gaurds/jwt-auth.guard';
 import { QueryService } from 'src/shared/services/query.service';
 import { UtilsService } from 'src/shared/services/utils.service';
 import { UserService } from './user.service';
-import { CreateUser, User, UserCreatedResponse } from 'src/models/user.model';
+import { CreateUser, UpdateUser, UpdateUserRole, UpdateUserStatus, User, UserCreatedResponse, UserUpdatedResponse } from 'src/models/user.model';
 
 @Controller('user')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -58,13 +58,11 @@ export class UserController {
     @ApiTags('User')
     @ApiBody({ type: CreateUser })
     @ApiResponse({ type: UserCreatedResponse })
-    @ApiBearerAuth("access_token")
-    @UseGuards(JwtAuthGuard)
     @Post('createUser')
     async createUser(@Body() body: CreateUser, @Request() req, @Response() res) {
         try {
             logger.log(level.info, `createUser body=${this.utils.beautify(body)}`);
-            const currentUser: User = await this.queryService.FindUserByEmailOnly(req.user.email);
+            const currentUser: User = await this.queryService.FindUserByEmailOnly(body.email);
             logger.log(level.info, `currentUser: ${this.utils.beautify(currentUser)}`);
 
             if (currentUser) {
@@ -135,61 +133,50 @@ export class UserController {
     //     }
     // }
 
-    // @ApiTags('Admin')
-    // @ApiParam({ name: 'id' })
-    // @ApiBody({ type: UpdateAdminUser })
-    // @ApiResponse({ type: AdminUpdatedResponse })
-    // @ApiBearerAuth("access_token")
-    // @UseGuards(JwtAuthGuard)
-    // @Put('updateAdminById/:id')
-    // async updateAdminById(@Param('id') param, @Body() body: UpdateAdminUser, @Request() req, @Response() res) {
-    //     try {
-    //         logger.log(level.info, `updateAdminById body=${this.utils.beautify(body)}, param=${this.utils.beautify(param)}`);
-    //         const currentAdmin = await this.queryService.FindUserByEmailOnly(req.user.email);
-    //         logger.log(level.info, `currentAdmin: ${this.utils.beautify(currentAdmin)}`);
-    //         const admin_updation_access = {
-    //             [APP_CONST.SUPER_ADMIN_ROLE]: [APP_CONST.ADMIN_ROLE, APP_CONST.SUB_ADMIN_ROLE],
-    //             [APP_CONST.ADMIN_ROLE]: [APP_CONST.SUB_ADMIN_ROLE]
-    //         }
-    //         const toBeUpdateAdmin = await this.userService.FindAdminById(param);
-    //         if ((admin_updation_access[currentAdmin['role']] && admin_updation_access[currentAdmin['role']].indexOf(toBeUpdateAdmin['role']) >= 0) || currentAdmin.id == param) {
-    //             if ('old_password' in body) {
-    //                 if (!(await toBeUpdateAdmin?.validatePassword(body['old_password']))) {
-    //                     return this.utils.sendJSONResponse(res, HttpStatus.FORBIDDEN, {
-    //                         success: false,
-    //                         statusCode: HttpStatus.FORBIDDEN,
-    //                         message: ERROR_CONST.OLD_PASSWORD_WRONG,
-    //                         data: {}
-    //                     })
-    //                 }
-    //             }
-    //             const updated = await this.userService.UpdateAdminQuery(param, body);
-    //             logger.log(level.info, `updated: ${this.utils.beautify(updated)}`);
-    //             this.utils.sendJSONResponse(res, HttpStatus.OK, {
-    //                 success: true,
-    //                 statusCode: HttpStatus.OK,
-    //                 message: "Updated SuccessFully",
-    //                 data: { ...toBeUpdateAdmin, ...body, password: null }
-    //             })
-    //         } else {
-    //             this.utils.sendJSONResponse(res, HttpStatus.FORBIDDEN, {
-    //                 success: false,
-    //                 statusCode: HttpStatus.FORBIDDEN,
-    //                 message: ERROR_CONST.DOES_NOT_HAVE_ACCESS,
-    //                 data: {}
-    //             });
-    //         }
-    //     } catch (error) {
+    @ApiTags('User')
+    @ApiParam({ name: 'id' })
+    @ApiBody({ type: UpdateUser })
+    @ApiResponse({ type: UserUpdatedResponse })
+    @ApiBearerAuth("access_token")
+    @UseGuards(JwtAuthGuard)
+    @Put('updateUserById/:id')
+    async updateUserById(@Param('id') param, @Body() body: UpdateUser, @Request() req, @Response() res) {
+        try {
+            logger.log(level.info, `updateUserById body=${this.utils.beautify(body)}, param=${this.utils.beautify(param)}`);
+            const toBeUpdateUser = await this.userService.FindUserById(param);
+            if ('old_password' in body) {
+                if (!(await toBeUpdateUser?.validatePassword(body['old_password']))) {
+                    return this.utils.sendJSONResponse(res, HttpStatus.FORBIDDEN, {
+                        success: false,
+                        statusCode: HttpStatus.FORBIDDEN,
+                        message: ERROR_CONST.OLD_PASSWORD_WRONG,
+                        data: {}
+                    })
+                }
+            } else {
+                delete body['password'];
+            }
+            const obj = this.utils.constructObject(body, ['firstname', 'lastname', 'phone', 'address', 'postcode', 'city', 'country', 'state', 'password']);
+            logger.log(level.info, `Update Body obj: ${this.utils.beautify(obj)}`);
+            const updated = await this.userService.UpdateUserQuery(param, obj);
+            logger.log(level.info, `updated: ${this.utils.beautify(updated)}`);
+            this.utils.sendJSONResponse(res, HttpStatus.OK, {
+                success: true,
+                statusCode: HttpStatus.OK,
+                message: "Updated SuccessFully",
+                data: { ...toBeUpdateUser, ...obj, password: null }
+            })
+        } catch (error) {
 
-    //         logger.log(level.error, `updateAdminById Error=${error}`);
-    //         this.utils.sendJSONResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, {
-    //             success: false,
-    //             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-    //             message: ERROR_CONST.INTERNAL_SERVER_ERROR,
-    //             data: error
-    //         });
-    //     }
-    // }
+            logger.log(level.error, `updateUserById Error=${error}`);
+            this.utils.sendJSONResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: ERROR_CONST.INTERNAL_SERVER_ERROR,
+                data: error
+            });
+        }
+    }
 
     // @ApiTags('Admin')
     // @ApiParam({ name: 'id' })
@@ -235,51 +222,44 @@ export class UserController {
     //     }
     // }
 
-    // @ApiTags('Admin')
-    // @ApiParam({ name: 'id' })
-    // @ApiBody({ type: UpdateAdminStatus })
-    // @ApiResponse({ type: AdminUpdatedResponse })
-    // @ApiBearerAuth("access_token")
-    // @UseGuards(JwtAuthGuard)
-    // @Put('updateStatusById/:id')
-    // async updateStatusById(@Param('id') param, @Body() body: UpdateAdminStatus, @Request() req, @Response() res) {
-    //     try {
-    //         logger.log(level.info, `updateStatusById body=${this.utils.beautify(body)}, param=${this.utils.beautify(param)}`);
-    //         const currentAdmin = await this.queryService.FindUserByEmailOnly(req.user.email);
-    //         logger.log(level.info, `currentAdmin: ${this.utils.beautify(currentAdmin)}`);
-    //         const admin_updation_access = {
-    //             [APP_CONST.SUPER_ADMIN_ROLE]: [APP_CONST.ADMIN_ROLE, APP_CONST.SUB_ADMIN_ROLE],
-    //             [APP_CONST.ADMIN_ROLE]: [APP_CONST.SUB_ADMIN_ROLE]
-    //         }
-    //         const toBeUpdateAdmin = await this.userService.FindAdminById(param);
-    //         if (toBeUpdateAdmin && admin_updation_access[currentAdmin['role']] && admin_updation_access[currentAdmin['role']].indexOf(toBeUpdateAdmin['role']) >= 0) {
-    //             const updated = await this.userService.UpdateAdminQuery(param, body);
-    //             logger.log(level.info, `updated: ${this.utils.beautify(updated)}`);
-    //             this.utils.sendJSONResponse(res, HttpStatus.OK, {
-    //                 success: true,
-    //                 statusCode: HttpStatus.OK,
-    //                 message: "Status Updated SuccessFully",
-    //                 data: { ...toBeUpdateAdmin, ...body, password: null }
-    //             })
-    //         } else {
-    //             this.utils.sendJSONResponse(res, HttpStatus.FORBIDDEN, {
-    //                 success: false,
-    //                 statusCode: HttpStatus.FORBIDDEN,
-    //                 message: ERROR_CONST.DOES_NOT_HAVE_ACCESS,
-    //                 data: {}
-    //             });
-    //         }
-    //     } catch (error) {
+    @ApiTags('User')
+    @ApiParam({ name: 'id' })
+    @ApiResponse({ type: UserUpdatedResponse })
+    @ApiBearerAuth("access_token")
+    @UseGuards(JwtAuthGuard)
+    @Put('becomeAnAuthor/:id')
+    async becomeAnAuthor(@Param('id') param, @Request() req, @Response() res) {
+        try {
+            logger.log(level.info, `becomeAnAuthor param=${this.utils.beautify(param)}`);
+            const toBeUpdateUser = await this.userService.FindUserById(param);
+            if (toBeUpdateUser) {
+                const updated = await this.userService.UpdateUserQuery(param, { role: APP_CONST.AUTHOR_USER_ROLE });
+                logger.log(level.info, `updated: ${this.utils.beautify(updated)}`);
+                this.utils.sendJSONResponse(res, HttpStatus.OK, {
+                    success: true,
+                    statusCode: HttpStatus.OK,
+                    message: "User Updated SuccessFully",
+                    data: { ...toBeUpdateUser, ...{ role: APP_CONST.AUTHOR_USER_ROLE }, password: null }
+                })
+            } else {
+                this.utils.sendJSONResponse(res, HttpStatus.FORBIDDEN, {
+                    success: false,
+                    statusCode: HttpStatus.FORBIDDEN,
+                    message: ERROR_CONST.DOES_NOT_HAVE_ACCESS,
+                    data: {}
+                });
+            }
+        } catch (error) {
 
-    //         logger.log(level.error, `updateStatusById Error=${error}`);
-    //         this.utils.sendJSONResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, {
-    //             success: false,
-    //             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-    //             message: ERROR_CONST.INTERNAL_SERVER_ERROR,
-    //             data: error
-    //         });
-    //     }
-    // }
+            logger.log(level.error, `updateRoleById Error=${error}`);
+            this.utils.sendJSONResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: ERROR_CONST.INTERNAL_SERVER_ERROR,
+                data: error
+            });
+        }
+    }
 
     // @ApiTags('Permissions')
     // @ApiParam({ name: 'id' })

@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 export class UserService {
     constructor(
         @InjectRepository(UserEntity)
-        private Admin: Repository<UserEntity>,
+        private User: Repository<UserEntity>,
         private queryService: QueryService
     ) {
 
@@ -18,35 +18,28 @@ export class UserService {
 
     async CreateUser(inputData): Promise<User> {
         try {
-            const user: any = this.Admin.create(inputData)
-            await this.Admin.save(user);
+            const user: any = this.User.create(inputData)
+            await this.User.save(user);
             return user
         } catch (error) {
             throw error
         }
     }
 
-    FindAdminByRoleIdAndCreatedId = async (filter) => {
-        var query = this.Admin.createQueryBuilder()
-            .select("id, firstname, lastname, company, postcode, state, street, email, role, status, permissions, created_by, created_at, updated_at")
+    FindUserByRoleIdAndCreatedId = async (filter) => {
+        var query = this.User.createQueryBuilder()
+            .select("id, firstname, lastname, email, phone, address,postcode, city, state, country, emailverified, canlogin,  role, created_at, updated_at")
             .where('role = :role', { role: filter['role'] })
 
-        if ('created_by_id' in filter && filter.created_by_id) {
-            query = query.andWhere('created_by = :created_by', { created_by: filter['created_by_id'] })
-        }
         const searchFields = {
-            // 'id': 'uuid',
-            'email': "text",
             'firstname': "text",
             'lastname': "text",
-            'company': "text",
-            'street': "text",
-            'state': "text"
-            // 'role': "number",
-            // 'status': "number", 
-            // 'created_by': "uuid",
-            // 'created_at': "date",
-            // 'updated_at': "date"
+            'email': "text",
+            'phone': "text",
+            'address': "text",
+            'city': "text",
+            'state': "text",
+            'country': "text",
         }
 
         query = this.queryService.ApplySearchToQuery(query, filter, Object.entries(searchFields));
@@ -69,21 +62,21 @@ export class UserService {
         return result;
     }
 
-    FindAdminById(id) {
-        return this.Admin.findOne({ where: { id } });
+    FindUserById(id) {
+        return this.User.findOne({ where: { id } });
     }
 
-    DeleteAdminQuery(id) {
+    DeleteUserQuery(id) {
         /* return this.Admin.createQueryBuilder()
             .delete()
             .from('admin')
             .where('id = :id', { id }) */
-        return this.Admin.delete({ id });
+        return this.User.delete({ id });
     }
 
-    UpdateAdminQuery(id, body) {
-        const admin: any = this.Admin.create(body);
-        return this.Admin.update({ id }, admin);
+    UpdateUserQuery(id, body) {
+        const admin: any = this.User.create(body);
+        return this.User.update({ id }, admin);
     }
 
 }

@@ -33,16 +33,19 @@ export class UserEntity {
     @Column({ collation: "default", nullable: true })
     city: string;
 
-    @Column({ collation: "default" })
+    @Column({ collation: "default", nullable: true })
     country: string;
 
-    @Column({ default: true })
+    @Column({ collation: "default", nullable: true })
+    state: string;
+
+    @Column({ default: false })
     emailverified: Boolean;
 
     @Column({ default: true })
     canlogin: Boolean;
 
-    @Column({ type: "int", default: 1, enum: [APP_CONST.NORMAL_USER_ROLE, APP_CONST.AUTHOR_USER_ROLE] })
+    @Column({ type: "int", default: APP_CONST.NORMAL_USER_ROLE, enum: [APP_CONST.NORMAL_USER_ROLE, APP_CONST.AUTHOR_USER_ROLE] })
     role: Number;
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })

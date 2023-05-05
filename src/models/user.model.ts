@@ -77,6 +77,10 @@ export class User extends CreateUser {
     country: string;
 
     @IsOptional()
+    @ApiPropertyOptional({ example: defaults.state })
+    state: string;
+
+    @IsOptional()
     @ApiPropertyOptional({ example: defaults.emailverified })
     emailverified: boolean;
 
@@ -141,6 +145,24 @@ export class UpdateUser {
     @IsOptional()
     @ApiPropertyOptional({ example: defaults.country })
     country: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    @ApiPropertyOptional({ example: defaults.state })
+    state: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    @ApiPropertyOptional({ example: defaults.password })
+    old_password: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    @ApiPropertyOptional({ example: defaults.password })
+    password: string;
 }
 
 export class UpdateUserStatus {

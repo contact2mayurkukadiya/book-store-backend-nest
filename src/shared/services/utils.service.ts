@@ -111,6 +111,18 @@ export class UtilsService {
         return shortid.generate();
     };
 
+    constructObject(obj, props) {
+        const newObj = {};
+        props.forEach(prop => {
+            let val = obj;
+            prop.split('.').forEach(key => {
+                val = val[key];
+            });
+            val != null && val != undefined ? newObj[prop] = val : null;
+        });
+        return newObj;
+    }
+
     getDistanceFromLatLon(lat1, lon1, lat2, lon2, unit) {
         const RadiusInKM = 6371; // Radius of the earth in km
         const RadiusInMI = 3958.8; // Radius of the earth in mi
