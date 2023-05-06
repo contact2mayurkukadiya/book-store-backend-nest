@@ -3,6 +3,7 @@ export const ERROR_CONST = {
   DOES_NOT_HAVE_ACCESS: 'Access Denied',
   EMAIL_ALREADY_EXIST: 'Email Already Exists',
   BOOK_ALREADY_EXIST: 'Book Already Exists',
+  ALREADY_EXIST: '{{value}} Already Exists',
   USER_NOT_AUTHORIZED: "Email or Password is Wrong",
   USER_NOT_FOUND: "User Not Found",
   OLD_PASSWORD_WRONG: "Old Password is Wrong",

@@ -7,10 +7,7 @@ import { level, logger } from 'src/config';
 import { APP_CONST, ERROR_CONST } from 'src/constants';
 import { Book, BookCreatedResponse, BookUpdatedResponse, CreateBook, UpdateBook } from 'src/models/book.model';
 import { JwtAuthGuard } from 'src/shared/gaurds/jwt-auth.guard';
-import { RolesGuard } from 'src/shared/gaurds/author.guard';
-
-export const Roles = (...roles: number[]) => SetMetadata('roles', roles);
-
+import { Roles, RolesGuard } from 'src/shared/gaurds/author.guard';
 
 @Controller('book')
 @UsePipes(new ValidationPipe({ transform: true }))

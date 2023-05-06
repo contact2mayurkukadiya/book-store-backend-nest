@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Response } from "./common.model";
 import { IsNumber, IsOptional, IsString, isNumber } from "class-validator";
 import { defaults } from "src/constants/documentation_default_values.const";
@@ -69,11 +69,19 @@ export class UpdateBook {
 
 
 export class BookCreatedResponse extends Response {
+    @IsOptional()
+    @ApiPropertyOptional({ example: defaults.successResponseMessage_Create })
+    message: string;
+
     @ApiProperty({ type: Book })
     data: any
 }
 
 export class BookUpdatedResponse extends Response {
+    @IsOptional()
+    @ApiPropertyOptional({ example: defaults.successResponseMessage_Update })
+    message: string;
+
     @ApiProperty({ type: Book })
     data: any
 }

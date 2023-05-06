@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
 import { BookModule } from './modules/book/book.module';
+import { GenreModule } from './modules/genre/genre.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { BookModule } from './modules/book/book.module';
     SharedModule,
     AuthModule,
     UserModule,
-    BookModule
+    BookModule,
+    GenreModule
   ],
   controllers: [AppController],
   providers: [AppService],

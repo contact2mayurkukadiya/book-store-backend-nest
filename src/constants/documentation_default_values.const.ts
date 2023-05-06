@@ -28,6 +28,7 @@ export const defaults = {
     language: "En",
     format: 1,
     pages: 100,
+    genre: "Fiction",
 
     //  Account Defaults
 
