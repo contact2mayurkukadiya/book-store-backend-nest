@@ -26,7 +26,7 @@ export class BookEntity {
     @Column()
     genre_id: string;
 
-    @OneToMany(() => GenreEntity, (genre) => genre.id, { nullable: true })
+    @ManyToOne(() => GenreEntity, (genre) => genre.id)
     @JoinColumn({ name: "genre_id" })
     genre: GenreEntity;
 
